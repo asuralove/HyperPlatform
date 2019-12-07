@@ -118,12 +118,12 @@ static HardwarePte *UtilpAddressToPde(_In_ const void *address);
 static HardwarePte *UtilpAddressToPte(_In_ const void *address);
 
 #if defined(ALLOC_PRAGMA)
-#pragma alloc_text(INIT, UtilInitialization)
+#pragma alloc_text(PAGE, UtilInitialization)
 #pragma alloc_text(PAGE, UtilTermination)
-#pragma alloc_text(INIT, UtilpInitializePageTableVariables)
-#pragma alloc_text(INIT, UtilpInitializeRtlPcToFileHeader)
-#pragma alloc_text(INIT, UtilpInitializePhysicalMemoryRanges)
-#pragma alloc_text(INIT, UtilpBuildPhysicalMemoryRanges)
+#pragma alloc_text(PAGE, UtilpInitializePageTableVariables)
+#pragma alloc_text(PAGE, UtilpInitializeRtlPcToFileHeader)
+#pragma alloc_text(PAGE, UtilpInitializePhysicalMemoryRanges)
+#pragma alloc_text(PAGE, UtilpBuildPhysicalMemoryRanges)
 #pragma alloc_text(PAGE, UtilForEachProcessor)
 #pragma alloc_text(PAGE, UtilSleep)
 #pragma alloc_text(PAGE, UtilGetSystemProcAddress)

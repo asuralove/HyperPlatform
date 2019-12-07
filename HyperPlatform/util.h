@@ -70,7 +70,11 @@ enum class HypercallNumber : unsigned __int32 {
   kTerminateVmm = kMinimumHypercallNumber,  //!< Terminates VMM
   kPingVmm,                                 //!< Sends ping to the VMM
   kGetSharedProcessorData,                  //!< Returns shared processor data
-  kMaximumHypercallNumber = kGetSharedProcessorData,
+  kShEnablePageShadowing,    // add
+  kShDisablePageShadowing,   // add
+  kShOperateShadowingPage,   // add
+
+  kMaximumHypercallNumber = kShOperateShadowingPage
 };
 
 ////////////////////////////////////////////////////////////////////////////////

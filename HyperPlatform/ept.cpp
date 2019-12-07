@@ -11,6 +11,7 @@
 #include "log.h"
 #include "util.h"
 #include "performance.h"
+#include "../../API/Hypervisor.h"
 
 extern "C" {
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +171,7 @@ _Use_decl_annotations_ bool EptIsEptAvailable() {
   // - INVVPID instruction with all possible types is supported
   Ia32VmxEptVpidCapMsr capability = {UtilReadMsr64(Msr::kIa32VmxEptVpidCap)};
   if (!capability.fields.support_page_walk_length4 ||
+      !capability.fields.support_execute_only_pages ||
       !capability.fields.support_write_back_memory_type ||
       !capability.fields.support_invept ||
       !capability.fields.support_single_context_invept ||
@@ -629,7 +631,8 @@ _Use_decl_annotations_ static ULONG64 EptpAddressToPteIndex(
 }
 
 // Deal with EPT violation VM-exit.
-_Use_decl_annotations_ void EptHandleEptViolation(EptData *ept_data) {
+_Use_decl_annotations_ void EptHandleEptViolation(
+    EptData *ept_data, ProcessorShadowData *sh_data) {
   const EptViolationQualification exit_qualification = {
       UtilVmRead(VmcsField::kExitQualification)};
 
@@ -642,9 +645,11 @@ _Use_decl_annotations_ void EptHandleEptViolation(EptData *ept_data) {
   if (exit_qualification.fields.ept_readable ||
       exit_qualification.fields.ept_writeable ||
       exit_qualification.fields.ept_executable) {
-    HYPERPLATFORM_COMMON_DBG_BREAK();
-    HYPERPLATFORM_LOG_ERROR_SAFE("[UNK1] VA = %p, PA = %016llx", fault_va,
-                                 fault_pa);
+    if (exit_qualification.fields.caused_by_translation) {
+      // Tell EPT violation when it is caused due to read or write violation.
+      VTX::ShHandleEptViolation(sh_data, ept_data, fault_va, fault_pa,
+                                exit_qualification);
+    }
     return;
   }
 

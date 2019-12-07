@@ -139,10 +139,10 @@ static bool LogpIsPrinted(_In_z_ char *message);
 static void LogpDbgBreak();
 
 #if defined(ALLOC_PRAGMA)
-#pragma alloc_text(INIT, LogInitialization)
-#pragma alloc_text(INIT, LogpInitializeBufferInfo)
+#pragma alloc_text(PAGE, LogInitialization)
+#pragma alloc_text(PAGE, LogpInitializeBufferInfo)
 #pragma alloc_text(PAGE, LogpInitializeLogFile)
-#pragma alloc_text(INIT, LogRegisterReinitialization)
+#pragma alloc_text(PAGE, LogRegisterReinitialization)
 #pragma alloc_text(PAGE, LogpReinitializationRoutine)
 #pragma alloc_text(PAGE, LogIrpShutdownHandler)
 #pragma alloc_text(PAGE, LogTermination)
@@ -443,9 +443,9 @@ _Use_decl_annotations_ NTSTATUS LogpPrint(ULONG level,
   }
 
   status = LogpPut(message, attribute);
-  if (!NT_SUCCESS(status)) {
-    LogpDbgBreak();
-  }
+  // if (!NT_SUCCESS(status)) {
+  //   LogpDbgBreak();
+  // }
   return status;
 }
 

@@ -13,6 +13,7 @@
 #include "log.h"
 #include "util.h"
 #include "performance.h"
+#include "../../API/Hypervisor.h"
 
 extern "C" {
 ////////////////////////////////////////////////////////////////////////////////
@@ -259,6 +260,7 @@ _Use_decl_annotations_ static void VmmpHandleVmExit(
       break;
     case VmxExitReason::kTripleFault:
       VmmpHandleTripleFault(guest_context);
+      break;
       /* UNREACHABLE */
     case VmxExitReason::kCpuid:
       VmmpHandleCpuid(guest_context);
@@ -289,6 +291,7 @@ _Use_decl_annotations_ static void VmmpHandleVmExit(
       break;
     case VmxExitReason::kMonitorTrapFlag:
       VmmpHandleMonitorTrap(guest_context);
+      break;
       /* UNREACHABLE */
     case VmxExitReason::kGdtrOrIdtrAccess:
       VmmpHandleGdtrOrIdtrAccess(guest_context);
@@ -301,6 +304,7 @@ _Use_decl_annotations_ static void VmmpHandleVmExit(
       break;
     case VmxExitReason::kEptMisconfig:
       VmmpHandleEptMisconfig(guest_context);
+      break;
       /* UNREACHABLE */
     case VmxExitReason::kVmcall:
       VmmpHandleVmCall(guest_context);
@@ -352,10 +356,10 @@ _Use_decl_annotations_ static void VmmpHandleUnexpectedExit(
 // MTF VM-exit
 _Use_decl_annotations_ static void VmmpHandleMonitorTrap(
     GuestContext *guest_context) {
-  VmmpDumpGuestState();
-  HYPERPLATFORM_COMMON_BUG_CHECK(HyperPlatformBugCheck::kUnexpectedVmExit,
-                                 reinterpret_cast<ULONG_PTR>(guest_context),
-                                 guest_context->ip, 0);
+  HYPERPLATFORM_PERFORMANCE_MEASURE_THIS_SCOPE();
+  auto processor_data = guest_context->stack->processor_data;
+  VTX::ShHandleMonitorTrapFlag(processor_data->sh_data,
+                               processor_data->ept_data);
 }
 
 // Interrupt
@@ -1227,6 +1231,25 @@ _Use_decl_annotations_ static void VmmpHandleVmCall(
           guest_context->stack->processor_data->shared_data;
       VmmpIndicateSuccessfulVmcall(guest_context);
       break;
+    case HypercallNumber::kShEnablePageShadowing:
+      VTX::ShpEnablePageShadowingForExec(
+          *reinterpret_cast<ShadowMemoryInfo *>(context),
+          guest_context->stack->processor_data->ept_data);
+      VmmpIndicateSuccessfulVmcall(guest_context);
+      break;
+    case HypercallNumber::kShDisablePageShadowing:
+      VTX::ShpDisablePageShadowing(
+          *reinterpret_cast<ShadowMemoryInfo *>(context),
+          guest_context->stack->processor_data->ept_data);
+      VmmpIndicateSuccessfulVmcall(guest_context);
+      break;
+    case HypercallNumber::kShOperateShadowingPage:
+      VTX::OperateMemoryInVMM(context);
+      VmmpIndicateSuccessfulVmcall(guest_context);
+      break;
+    default:
+      // Unsupported hypercall
+      VmmpIndicateUnsuccessfulVmcall(guest_context);
   }
 }
 
@@ -1255,7 +1278,7 @@ _Use_decl_annotations_ static void VmmpHandleEptViolation(
     GuestContext *guest_context) {
   HYPERPLATFORM_PERFORMANCE_MEASURE_THIS_SCOPE();
   auto processor_data = guest_context->stack->processor_data;
-  EptHandleEptViolation(processor_data->ept_data);
+  EptHandleEptViolation(processor_data->ept_data, processor_data->sh_data);
 }
 
 // EXIT_REASON_EPT_MISCONFIG

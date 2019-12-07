@@ -40,6 +40,7 @@ struct ProcessorData {
   struct VmControlStructure* vmxon_region;  //!< VA of a VMXON region
   struct VmControlStructure* vmcs_region;   //!< VA of a VMCS region
   struct EptData* ept_data;                 //!< A pointer to EPT related data
+  struct ProcessorShadowData* sh_data;      //!< Per-processor shadow hook data
 };
 
 /// nt!_KTRAP_FRAME on x86

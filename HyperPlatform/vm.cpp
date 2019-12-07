@@ -14,6 +14,7 @@
 #include "log.h"
 #include "util.h"
 #include "vmm.h"
+#include "../../API/Hypervisor.h"
 
 extern "C" {
 ////////////////////////////////////////////////////////////////////////////////
@@ -379,6 +380,13 @@ _Use_decl_annotations_ static void VmpInitializeVm(
   // Set up EPT
   processor_data->ept_data = EptInitialization();
   if (!processor_data->ept_data) {
+    VmpFreeProcessorData(processor_data);
+    return;
+  }
+
+  // Set up processor data for FU components
+  processor_data->sh_data = VTX::ShAllocateProcessorData();
+  if (!processor_data->sh_data) {
     VmpFreeProcessorData(processor_data);
     return;
   }
@@ -986,6 +994,9 @@ _Use_decl_annotations_ static void VmpFreeProcessorData(
   if (processor_data->vmxon_region) {
     ExFreePoolWithTag(processor_data->vmxon_region,
                       kHyperPlatformCommonPoolTag);
+  }
+  if (processor_data->sh_data) {
+    VTX::ShFreeProcessorData(processor_data->sh_data);
   }
   if (processor_data->ept_data) {
     EptTermination(processor_data->ept_data);

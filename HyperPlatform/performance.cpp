@@ -34,7 +34,7 @@ static PerfCollector::OutputRoutine PerfpOutputRoutine;
 static PerfCollector::FinalOutputRoutine PerfpFinalOutputRoutine;
 
 #if defined(ALLOC_PRAGMA)
-#pragma alloc_text(INIT, PerfInitialization)
+#pragma alloc_text(PAGE, PerfInitialization)
 #pragma alloc_text(PAGE, PerfTermination)
 #endif
 

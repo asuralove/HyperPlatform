@@ -34,7 +34,7 @@ extern "C" {
 static CALLBACK_FUNCTION PowerCallbackpCallbackRoutine;
 
 #if defined(ALLOC_PRAGMA)
-#pragma alloc_text(INIT, PowerCallbackInitialization)
+#pragma alloc_text(PAGE, PowerCallbackInitialization)
 #pragma alloc_text(PAGE, PowerCallbackTermination)
 #pragma alloc_text(PAGE, PowerCallbackpCallbackRoutine)
 #endif

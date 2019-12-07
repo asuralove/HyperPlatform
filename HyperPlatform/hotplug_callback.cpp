@@ -34,7 +34,7 @@ extern "C" {
 static PROCESSOR_CALLBACK_FUNCTION HotplugCallbackpCallbackRoutine;
 
 #if defined(ALLOC_PRAGMA)
-#pragma alloc_text(INIT, HotplugCallbackInitialization)
+#pragma alloc_text(PAGE, HotplugCallbackInitialization)
 #pragma alloc_text(PAGE, HotplugCallbackTermination)
 #pragma alloc_text(PAGE, HotplugCallbackpCallbackRoutine)
 #endif
