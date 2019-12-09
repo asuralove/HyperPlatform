@@ -92,8 +92,7 @@ DECLSPEC_NORETURN static void VmmpHandleTripleFault(
 DECLSPEC_NORETURN static void VmmpHandleUnexpectedExit(
     _Inout_ GuestContext *guest_context);
 
-DECLSPEC_NORETURN static void VmmpHandleMonitorTrap(
-    _Inout_ GuestContext *guest_context);
+static void VmmpHandleMonitorTrap(_Inout_ GuestContext *guest_context);
 
 static void VmmpHandleException(_Inout_ GuestContext *guest_context);
 
@@ -260,7 +259,6 @@ _Use_decl_annotations_ static void VmmpHandleVmExit(
       break;
     case VmxExitReason::kTripleFault:
       VmmpHandleTripleFault(guest_context);
-      break;
       /* UNREACHABLE */
     case VmxExitReason::kCpuid:
       VmmpHandleCpuid(guest_context);
@@ -292,7 +290,6 @@ _Use_decl_annotations_ static void VmmpHandleVmExit(
     case VmxExitReason::kMonitorTrapFlag:
       VmmpHandleMonitorTrap(guest_context);
       break;
-      /* UNREACHABLE */
     case VmxExitReason::kGdtrOrIdtrAccess:
       VmmpHandleGdtrOrIdtrAccess(guest_context);
       break;
@@ -304,7 +301,6 @@ _Use_decl_annotations_ static void VmmpHandleVmExit(
       break;
     case VmxExitReason::kEptMisconfig:
       VmmpHandleEptMisconfig(guest_context);
-      break;
       /* UNREACHABLE */
     case VmxExitReason::kVmcall:
       VmmpHandleVmCall(guest_context);
