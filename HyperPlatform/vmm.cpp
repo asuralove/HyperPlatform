@@ -90,6 +90,7 @@ DECLSPEC_NORETURN static void VmmpHandleTripleFault(
     _Inout_ GuestContext *guest_context);
 
 DECLSPEC_NORETURN static void VmmpHandleUnexpectedExit(
+    _In_ unsigned int exit_reason,
     _Inout_ GuestContext *guest_context);
 
 static void VmmpHandleMonitorTrap(_Inout_ GuestContext *guest_context);
@@ -325,7 +326,7 @@ _Use_decl_annotations_ static void VmmpHandleVmExit(
       VmmpHandleXsetbv(guest_context);
       break;
     default:
-      VmmpHandleUnexpectedExit(guest_context);
+      VmmpHandleUnexpectedExit(exit_reason.all, guest_context);
       /* UNREACHABLE */
   }
 }
@@ -341,12 +342,14 @@ _Use_decl_annotations_ static void VmmpHandleTripleFault(
 
 // Unexpected VM-exit. Fatal error.
 _Use_decl_annotations_ static void VmmpHandleUnexpectedExit(
+    unsigned int exit_reason,
     GuestContext *guest_context) {
   VmmpDumpGuestState();
   const auto qualification = UtilVmRead(VmcsField::kExitQualification);
   HYPERPLATFORM_COMMON_BUG_CHECK(HyperPlatformBugCheck::kUnexpectedVmExit,
                                  reinterpret_cast<ULONG_PTR>(guest_context),
-                                 guest_context->ip, qualification);
+                                 exit_reason,
+                                 qualification);
 }
 
 // MTF VM-exit
